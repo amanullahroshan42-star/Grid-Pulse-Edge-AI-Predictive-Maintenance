@@ -1,0 +1,36 @@
+{
+    "model_type": "RandomForestClassifier",
+    "n_estimators": 40,
+    "features": [
+        "voltage_v",
+        "current_a",
+        "power_w",
+        "power_factor",
+        "frequency_hz",
+        "rpm",
+        "slip",
+        "shaft_freq_hz",
+        "vib_x_rms",
+        "vib_x_peak",
+        "vib_x_crest",
+        "vib_x_kurtosis",
+        "vib_x_skew",
+        "vib_y_rms",
+        "vib_y_peak",
+        "vib_y_crest",
+        "vib_y_kurtosis",
+        "vib_z_rms",
+        "vib_z_peak",
+        "vib_z_crest",
+        "fft_1x_amp",
+        "fft_energy_band",
+        "fft_dominant_freq"
+    ],
+    "classes": [
+        "Load_1_2kg",
+        "Load_2_7.5kg",
+        "No_Load"
+    ],
+    "test_accuracy": 1.0,
+    "asset": "PSG 2.2 kW Three-Phase Induction Motor (Lab Benchmark)"
+}

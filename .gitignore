@@ -1,0 +1,23 @@
+# Python build & runtime artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# VS Code / IDE configs
+.vscode/
+.idea/
+
+# OS temporary files
+Thumbs.db
+Desktop.ini
+*.tmp
+*.bak

@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GridPulse | Motor Intelligence & Smart Grid Dashboard</title>
+  <!-- Chart.js for smooth streaming charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0B0E14;
+      --card-bg: #141A24;
+      --card-inner: #19202D;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(0, 242, 254, 0.4);
+      --text-main: #FFFFFF;
+      --text-muted: #8E9BAE;
+      --accent-cyan: #00F2FE;
+      --accent-teal: #00E5FF;
+      --accent-green: #00E676;
+      --accent-purple: #8B5CF6;
+      --accent-amber: #F59E0B;
+      --accent-red: #EF4444;
+      --accent-blue: #3B82F6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ---------------- Sidebar ---------------- */
+    .sidebar {
+      width: 250px;
+      background: #0E131C;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px 28px 8px;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+    }
+
+    .brand-logo svg {
+      width: 22px;
+      height: 22px;
+      fill: #0B0E14;
+    }
+
+    .brand-name {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      background: linear-gradient(90deg, #FFFFFF, #93C5FD);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-grow: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+    }
+
+    .nav-item.active {
+      background: rgba(0, 242, 254, 0.1);
+      color: var(--accent-cyan);
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px rgba(0, 242, 254, 0.25);
+    }
+
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+    }
+
+    /* AI Signal Card in Sidebar */
+    .ai-signal-card {
+      background: linear-gradient(180deg, rgba(0, 242, 254, 0.08) 0%, rgba(20, 26, 36, 0.95) 100%);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      margin-top: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .ai-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      margin-bottom: 6px;
+    }
+
+    .ai-status-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-green);
+      margin-bottom: 12px;
+    }
+
+    .ai-brain-icon {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 10px auto;
+      background: radial-gradient(circle, rgba(0, 242, 254, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      box-shadow: 0 0 16px rgba(0, 242, 254, 0.2);
+    }
+
+    .ai-brain-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--accent-cyan);
+    }
+
+    .ai-confidence-bar {
+      height: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .ai-confidence-fill {
+      height: 100%;
+      width: 95%;
+      background: linear-gradient(90deg, #00E676, #00F2FE);
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    /* ---------------- Main Content ---------------- */
+    .main-wrapper {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      height: 100vh;
+    }
+
+    /* Top Bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(11, 14, 20, 0.8);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .page-title h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+    }
+
+    .page-title p {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(0, 230, 118, 0.1);
+      color: var(--accent-green);
+      border: 1px solid rgba(0, 230, 118, 0.25);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 10px var(--accent-green);
+      animation: pulseAnim 1.6s infinite;
+    }
+
+    @keyframes pulseAnim {
+      0% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1.0; transform: scale(1.15); }
+      100% { opacity: 0.4; transform: scale(0.9); }
+    }
+
+    .asset-select {
+      background: var(--card-inner);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12.5px;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Content Grid Container */
+    .dashboard-container {
+      padding: 24px 32px 40px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ---------------- Emergency Banner ---------------- */
+    .trip-banner {
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.18) 0%, rgba(20, 26, 36, 0.95) 100%);
+      border: 1px solid var(--accent-red);
+      border-radius: 12px;
+      padding: 16px 22px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      animation: flashBorder 1.5s infinite;
+    }
+
+    @keyframes flashBorder {
+      0% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); }
+      50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); }
+      100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); }
+    }
+
+    .trip-banner.active {
+      display: flex;
+    }
+
+    .trip-info h3 {
+      color: var(--accent-red);
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .trip-info p {
+      font-size: 13px;
+      color: #FCA5A5;
+      margin-top: 3px;
+    }
+
+    .btn-reset-relay {
+      background: var(--accent-red);
+      color: #FFFFFF;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-reset-relay:hover {
+      background: #DC2626;
+      transform: translateY(-1px);
+    }
+
+    /* ---------------- Top 4 KPI Cards ---------------- */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+      transform: translateY(-2px);
+    }
+
+    .kpi-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .kpi-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .kpi-value-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .kpi-sub {
+      font-size: 11.5px;
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    .sparkline-svg {
+      width: 100%;
+      height: 38px;
+    }
+
+    /* ---------------- Middle Grid (Charts & Gauges) ---------------- */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+
+    .chart-tabs {
+      display: flex;
+      gap: 6px;
+      background: var(--card-inner);
+      padding: 3px;
+      border-radius: 8px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: rgba(0, 242, 254, 0.18);
+      color: var(--accent-cyan);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 260px;
+      width: 100%;
+    }
+
+    /* Health Index Semi-Circle Gauge Card */
+    .mhi-gauge-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+      position: relative;
+    }
+
+    .gauge-svg {
+      width: 220px;
+      height: 125px;
+    }
+
+    .gauge-score {
+      font-size: 38px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-green);
+      margin-top: -15px;
+    }
+
+    .gauge-subtext {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .subindex-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+      width: 100%;
+    }
+
+    .subindex-item {
+      text-align: center;
+      background: var(--card-inner);
+      padding: 10px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .subindex-label {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .subindex-val {
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 4px;
+    }
+
+    /* ---------------- Bottom 3 Columns ---------------- */
+    .grid-3col {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr 1fr;
+      gap: 20px;
+    }
+
+    /* Phasor Vector Display */
+    .phasor-canvas-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+    }
+
+    .phasor-svg {
+      width: 190px;
+      height: 190px;
+    }
+
+    /* Fault Injection Control Console */
+    .fault-btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .fault-btn {
+      background: var(--card-inner);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .fault-btn:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 242, 254, 0.08);
+    }
+
+    .fault-btn.active {
+      border-color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.18);
+      color: #FCA5A5;
+      font-weight: 700;
+    }
+
+    .relay-status-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: rgba(0, 230, 118, 0.1);
+      border: 1px solid rgba(0, 230, 118, 0.3);
+      color: var(--accent-green);
+      font-weight: 700;
+      font-size: 13px;
+      margin-top: 14px;
+    }
+
+    .relay-status-pill.tripped {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+      animation: pulseRed 1s infinite alternate;
+    }
+
+    @keyframes pulseRed {
+      from { box-shadow: 0 0 6px rgba(239, 68, 68, 0.3); }
+      to { box-shadow: 0 0 18px rgba(239, 68, 68, 0.7); }
+    }
+
+    /* ToU / Economic Cards */
+    .tou-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+    }
+
+    .tou-item:last-child {
+      border-bottom: none;
+    }
+
+    .tou-label {
+      color: var(--text-muted);
+    }
+
+    .tou-value {
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24">
+          <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z"/>
+        </svg>
+      </div>
+      <div class="brand-name">GridPulse</div>
+    </div>
+
+    <nav class="nav-menu">
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Micro-PMU
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Asset Health (MHI)
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Volt-VAr & Costing
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Fault Injector
+      </div>
+    </nav>
+
+    <!-- AI Signal Card in Sidebar matching reference -->
+    <div class="ai-signal-card">
+      <div class="ai-badge">&bull; AI ASSET STATUS</div>
+      <div class="ai-status-text" id="sidebar-ai-status">OPTIMAL / HEALTHY</div>
+      <div class="ai-brain-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24A2.5 2.5 0 0 1 9.5 2zm5 0a2.5 2.5 0 0 1 4.44 1.04 2.5 2.5 0 0 1 1.32 4.24 3 3 0 0 1-.34 5.58 2.5 2.5 0 0 1-2.96 3.08A2.5 2.5 0 0 1 12 19.5v-15A2.5 2.5 0 0 1 14.5 2z"/>
+        </svg>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted);">Confidence Score</div>
+      <div style="font-size: 14px; font-weight: 700; color: #FFF; margin-top: 2px;" id="sidebar-confidence">95%</div>
+      <div class="ai-confidence-bar">
+        <div class="ai-confidence-fill" id="sidebar-confidence-bar"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="page-title">
+        <h1>Smart Grid Asset Intelligence</h1>
+        <p>PSG 2.2 kW Three-Phase Induction Motor | Edge Synchrophasor Gateway</p>
+      </div>
+      <div class="top-actions">
+        <div class="status-pill" id="source-status-pill">
+          <div class="pulse-dot" id="source-pulse-dot"></div>
+          <span id="source-status-text">DIGITAL TWIN: SIMULATOR</span>
+        </div>
+        <select class="asset-select" id="load-selector" onchange="changeLoadCondition(this.value)">
+          <option value="No_Load">Condition: No Load (0 kg)</option>
+          <option value="Load_1_2kg" selected>Condition: Load 1 (2 kg Brake)</option>
+          <option value="Load_2_7.5kg">Condition: Load 2 (7.5 kg Heavy)</option>
+        </select>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+
+      <!-- Emergency Trip Banner (Hidden by default, shown on trip) -->
+      <div class="trip-banner" id="trip-banner">
+        <div class="trip-info">
+          <h3>
+            <svg style="width:20px;height:20px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 14h-2v-2h2v2zm0-4h-2V8h2v4z"/></svg>
+            EMERGENCY PROTECTION RELAY TRIPPED [CONTACTORS OPEN]
+          </h3>
+          <p id="trip-reason-text">Fault Detected: Severe Mechanical Overload (Current > 200% Rated)</p>
+        </div>
+        <button class="btn-reset-relay" onclick="resetRelay()">RESET & RE-ARM RELAY</button>
+      </div>
+
+      <!-- Top KPI Row (4 Cards with Sparklines) -->
+      <div class="kpi-row">
+        <!-- Card 1: Voltage -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Line Voltage (V_RMS)</span>
+            <div class="kpi-icon" style="background: rgba(0, 242, 254, 0.1); color: var(--accent-cyan);">
+              <svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+          </div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpi-voltage">230.1 V</span>
+            <span class="kpi-sub" id="kpi-voltage-pu">1.000 p.u.</span>
+          </div>
+          <!-- SVG Sparkline -->
+          <svg class="sparkline-svg" viewBox="0 0 100 25" preserveAspectRatio="none">
+            <path id="spark-v" d="M0,15 Q25,12 50,14 T100,13" fill="none" stroke="#00F2FE" stroke-width="2"/>
+          </svg>
+        </div>
+
+        <!-- Card 2: Current -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Stator Current (I_RMS)</span>
+            <div class="kpi-icon" style="background: rgba(0, 230, 118, 0.1); color: var(--accent-green);">
+              <svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+          </div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpi-current">2.50 A</span>
+            <span class="kpi-sub" id="kpi-current-ratio">52.1% Rated</span>
+          </div>
+          <svg class="sparkline-svg" viewBox="0 0 100 25" preserveAspectRatio="none">
+            <path id="spark-i" d="M0,18 Q30,12 60,16 T100,14" fill="none" stroke="#00E676" stroke-width="2"/>
+          </svg>
+        </div>
+
+        <!-- Card 3: Speed & Slip -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Rotor Speed & Slip</span>
+            <div class="kpi-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--accent-purple);">
+              <svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </div>
+          </div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpi-rpm">1480 RPM</span>
+            <span class="kpi-sub" id="kpi-slip" style="color:var(--accent-purple);">Slip: 1.33%</span>
+          </div>
+          <svg class="sparkline-svg" viewBox="0 0 100 25" preserveAspectRatio="none">
+            <path id="spark-rpm" d="M0,10 Q20,15 50,11 T100,12" fill="none" stroke="#8B5CF6" stroke-width="2"/>
+          </svg>
+        </div>
+
+        <!-- Card 4: Power & PF -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Active Power & PF</span>
+            <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--accent-amber);">
+              <svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+          </div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpi-power">356.5 W</span>
+            <span class="kpi-sub" id="kpi-pf" style="color:var(--accent-amber);">PF: 0.62 Lag</span>
+          </div>
+          <svg class="sparkline-svg" viewBox="0 0 100 25" preserveAspectRatio="none">
+            <path id="spark-p" d="M0,16 Q40,8 70,14 T100,12" fill="none" stroke="#F59E0B" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Middle Section: Timeseries Waveform Chart & Health Index Gauge -->
+      <div class="grid-2col">
+        
+        <!-- Live Waveform Monitor -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Real-Time Sensor Telemetry & Grid Waveform</div>
+            <div class="chart-tabs">
+              <button class="tab-btn active" onclick="switchChartTab('voltage')">Voltage (V)</button>
+              <button class="tab-btn" onclick="switchChartTab('current')">Current (A)</button>
+              <button class="tab-btn" onclick="switchChartTab('vibration')">Vibration (g)</button>
+              <button class="tab-btn" onclick="switchChartTab('power')">Power (W)</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="liveChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Robust Motor Health Index Gauge Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Motor Health Index (MHI %)</div>
+            <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 600;">ISO 10816 / IEEE 1415</span>
+          </div>
+
+          <!-- Semi-Circle SVG Radial Gauge -->
+          <div class="mhi-gauge-wrapper">
+            <svg class="gauge-svg" viewBox="0 0 200 110">
+              <!-- Background Arc -->
+              <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#1F2937" stroke-width="18" stroke-linecap="round"/>
+              <!-- Colored Gauge Zones -->
+              <path d="M 20 100 A 80 80 0 0 1 80 32" fill="none" stroke="#EF4444" stroke-width="18" stroke-linecap="round" opacity="0.3"/>
+              <path d="M 80 32 A 80 80 0 0 1 125 24" fill="none" stroke="#F59E0B" stroke-width="18" opacity="0.3"/>
+              <path d="M 125 24 A 80 80 0 0 1 180 100" fill="none" stroke="#00E676" stroke-width="18" stroke-linecap="round" opacity="0.3"/>
+              
+              <!-- Active Progress Arc -->
+              <path id="gauge-active-arc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#00E676" stroke-width="18" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="0"/>
+              
+              <!-- Center Needle / Indicator -->
+              <circle cx="100" cy="100" r="7" fill="#FFFFFF"/>
+              <line id="gauge-needle" x1="100" y1="100" x2="100" y2="30" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" transform="rotate(0 100 100)"/>
+            </svg>
+            
+            <div class="gauge-score" id="mhi-display">100.0%</div>
+            <div class="gauge-subtext" id="mhi-zone-label" style="color: var(--accent-green);">ZONE A: HEALTHY OPERATION</div>
+          </div>
+
+          <!-- Sub-indices: EHI, VHI, KHI -->
+          <div class="subindex-grid">
+            <div class="subindex-item">
+              <div class="subindex-label">ELECTRICAL (EHI)</div>
+              <div class="subindex-val" id="val-ehi" style="color: #00F2FE;">100%</div>
+            </div>
+            <div class="subindex-item">
+              <div class="subindex-label">VIBRATION (VHI)</div>
+              <div class="subindex-val" id="val-vhi" style="color: #00E676;">100%</div>
+            </div>
+            <div class="subindex-item">
+              <div class="subindex-label">KINEMATIC (KHI)</div>
+              <div class="subindex-val" id="val-khi" style="color: #8B5CF6;">100%</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Lower 3 Columns: Micro-PMU Phasor, Fault Injection Console & ToU Costing -->
+      <div class="grid-3col">
+        
+        <!-- Column 1: Micro-PMU Vector -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Micro-PMU</div>
+            <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 600;" id="rocof-display">RoCoF: 0.0 Hz/s</span>
+          </div>
+          
+          <div class="phasor-canvas-wrapper">
+            <svg class="phasor-svg" viewBox="-100 -100 200 200">
+              <!-- Grid Circles -->
+              <circle cx="0" cy="0" r="80" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="3,3"/>
+              <circle cx="0" cy="0" r="50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+              <!-- Axes -->
+              <line x1="-90" y1="0" x2="90" y2="0" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+              <line x1="0" y1="-90" x2="0" y2="90" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+              
+              <!-- Voltage Vector (Fixed at 0 degrees, along +X axis) -->
+              <line x1="0" y1="0" x2="75" y2="0" stroke="#00F2FE" stroke-width="3" stroke-linecap="round"/>
+              <polygon points="75,0 67,-4 67,4" fill="#00F2FE"/>
+              <text x="78" y="4" fill="#00F2FE" font-size="9" font-weight="700">V (0°)</text>
+
+              <!-- Current Vector (Rotates by theta angle) -->
+              <g id="current-phasor-group" transform="rotate(51.68 0 0)">
+                <line x1="0" y1="0" x2="60" y2="0" stroke="#00E676" stroke-width="3" stroke-linecap="round"/>
+                <polygon points="60,0 52,-4 52,4" fill="#00E676"/>
+                <text x="64" y="4" fill="#00E676" font-size="9" font-weight="700">I</text>
+              </g>
+            </svg>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:6px; color:var(--text-muted);">
+            <span>Phase Lag (&theta;): <b id="theta-display" style="color:#FFF;">51.7°</b></span>
+            <span>Freq: <b id="freq-display" style="color:#FFF;">50.00 Hz</b></span>
+          </div>
+        </div>
+
+        <!-- Column 2: Digital Twin Fault Injector & Trip Relay -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Digital Twin Fault Injector</div>
+            <span style="font-size: 11px; color: var(--accent-amber); font-weight: 600;">Interactive Lab Demo</span>
+          </div>
+
+          <div class="fault-btn-grid">
+            <button class="fault-btn active" id="btn-fault-none" onclick="injectFault('none')">
+              <span style="color:#00E676;">&bull;</span> Normal / Healthy
+            </button>
+            <button class="fault-btn" id="btn-fault-unbalance" onclick="injectFault('unbalance')">
+              <span style="color:#F59E0B;">&bull;</span> Rotor Unbalance
+            </button>
+            <button class="fault-btn" id="btn-fault-bearing" onclick="injectFault('bearing')">
+              <span style="color:#EF4444;">&bull;</span> Bearing BPFO
+            </button>
+            <button class="fault-btn" id="btn-fault-overload" onclick="injectFault('overload')">
+              <span style="color:#EF4444;">&bull;</span> Thermal Overload
+            </button>
+            <button class="fault-btn" id="btn-fault-sag" onclick="injectFault('sag')">
+              <span style="color:#3B82F6;">&bull;</span> Voltage Sag Dip
+            </button>
+            <button class="fault-btn" id="btn-fault-single_phase" onclick="injectFault('single_phase')">
+              <span style="color:#8B5CF6;">&bull;</span> Single Phasing
+            </button>
+          </div>
+
+          <!-- Protection Relay Status Box -->
+          <div class="relay-status-pill" id="relay-pill">
+            <span id="relay-state-label">RELAY: ARMED / CLOSED</span>
+            <button class="tab-btn" style="background:rgba(255,255,255,0.1);color:#FFF;" onclick="manualTrip()">TRIP NOW</button>
+          </div>
+        </div>
+
+        <!-- Column 3: Volt-VAr & Time-of-Use Costing -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Volt-VAr & ToU Costing</div>
+            <span style="font-size: 11px; color: var(--accent-green); font-weight: 600;" id="tou-tier-badge">NORMAL TIER</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="tou-item">
+              <span class="tou-label">Reactive Power (Q)</span>
+              <span class="tou-value" id="val-q" style="color:var(--accent-cyan);">0.452 kVAr</span>
+            </div>
+            <div class="tou-item">
+              <span class="tou-label">Capacitor Advice (Target 0.96)</span>
+              <span class="tou-value" id="val-cap" style="color:var(--accent-amber);">20.9 &mu;F</span>
+            </div>
+            <div class="tou-item">
+              <span class="tou-label">Tariff Rate (Industrial)</span>
+              <span class="tou-value" id="val-tariff">&#8377; 7.50 / kWh</span>
+            </div>
+            <div class="tou-item">
+              <span class="tou-label">Hourly Operating Cost</span>
+              <span class="tou-value" id="val-cost" style="color:#FFF;">&#8377; 2.67 / hr</span>
+            </div>
+            <div class="tou-item">
+              <span class="tou-label">Demand Response Rebate</span>
+              <span class="tou-value" id="val-dr" style="color:var(--accent-green);">&#8377; 0.00 Earned</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ---------------- Chart.js Setup ----------------
+    let currentChartTab = "voltage";
+    const ctx = document.getElementById('liveChart').getContext('2d');
+    
+    const chartConfig = {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Line Voltage (V)',
+          data: [],
+          borderColor: '#00F2FE',
+          backgroundColor: 'rgba(0, 242, 254, 0.08)',
+          borderWidth: 2.2,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 300 },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#161F30',
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1,
+            titleColor: '#8E9BAE',
+            bodyColor: '#FFFFFF',
+            bodyFont: { family: 'JetBrains Mono', size: 12 }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#8E9BAE', font: { size: 10 } }
+          },
+          y: {
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#8E9BAE', font: { family: 'JetBrains Mono', size: 11 } }
+          }
+        }
+      }
+    };
+    const liveChart = new Chart(ctx, chartConfig);
+
+    function switchChartTab(tab) {
+      currentChartTab = tab;
+      document.querySelectorAll('.chart-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const colors = {
+        voltage: { border: '#00F2FE', bg: 'rgba(0, 242, 254, 0.08)', label: 'Line Voltage (V)' },
+        current: { border: '#00E676', bg: 'rgba(0, 230, 118, 0.08)', label: 'Stator Current (A)' },
+        vibration: { border: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.08)', label: 'Vibration RMS (g)' },
+        power: { border: '#F59E0B', bg: 'rgba(245, 158, 11, 0.08)', label: 'Active Power (W)' }
+      };
+
+      liveChart.data.datasets[0].borderColor = colors[tab].border;
+      liveChart.data.datasets[0].backgroundColor = colors[tab].bg;
+      liveChart.data.datasets[0].label = colors[tab].label;
+      liveChart.update('none');
+    }
+
+    // ---------------- Polling & Data Update ----------------
+    async function fetchTelemetry() {
+      try {
+        const res = await fetch('/api/telemetry');
+        const data = await res.json();
+        if (!data || !data.synchrophasor) return;
+
+        updateDashboard(data);
+      } catch (err) {
+        console.error("Telemetry fetch error:", err);
+      }
+    }
+
+    function updateDashboard(data) {
+      const sp = data.synchrophasor;
+      const va = data.var_analytics;
+      const pq = data.power_quality;
+      const dr = data.demand_response;
+      const ml = data.motor_health_and_load;
+      const pr = data.protection_relay;
+      const hist = data.history;
+
+      // 0. Update Data Source Status Pill
+      const src = data.data_source;
+      const pill = document.getElementById('source-status-pill');
+      const dot = document.getElementById('source-pulse-dot');
+      const txt = document.getElementById('source-status-text');
+      if (src === 'LIVE_HARDWARE') {
+        pill.style.background = 'rgba(0, 242, 254, 0.12)';
+        pill.style.color = 'var(--accent-cyan)';
+        pill.style.borderColor = 'rgba(0, 242, 254, 0.35)';
+        dot.style.background = 'var(--accent-cyan)';
+        dot.style.boxShadow = '0 0 10px var(--accent-cyan)';
+        txt.innerText = 'LIVE HARDWARE: STREAMING';
+      } else {
+        pill.style.background = 'rgba(245, 158, 11, 0.12)';
+        pill.style.color = 'var(--accent-amber)';
+        pill.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+        dot.style.background = 'var(--accent-amber)';
+        dot.style.boxShadow = '0 0 10px var(--accent-amber)';
+        txt.innerText = 'DIGITAL TWIN: SIMULATOR';
+      }
+
+      // 1. KPI Cards
+      document.getElementById('kpi-voltage').innerText = `${sp.v_magnitude.toFixed(1)} V`;
+      document.getElementById('kpi-voltage-pu').innerText = `${pq.per_unit_voltage.toFixed(3)} p.u.`;
+
+      document.getElementById('kpi-current').innerText = `${sp.i_magnitude.toFixed(2)} A`;
+      const curRatio = ((sp.i_magnitude / 4.8) * 100).toFixed(1);
+      document.getElementById('kpi-current-ratio').innerText = `${curRatio}% Rated`;
+
+      document.getElementById('kpi-rpm').innerText = `${(1500 - ml.diagnostics.slip * 1500).toFixed(0)} RPM`;
+      document.getElementById('kpi-slip').innerText = `Slip: ${(ml.diagnostics.slip * 100).toFixed(2)}%`;
+
+      document.getElementById('kpi-power').innerText = `${(va.active_power_kw * 1000).toFixed(1)} W`;
+      document.getElementById('kpi-pf').innerText = `PF: ${Math.cos(sp.phase_angle_rad).toFixed(2)} Lag`;
+
+      // 2. Health Index Gauge
+      const mhi = ml.mhi_percentage;
+      document.getElementById('mhi-display').innerText = `${mhi.toFixed(1)}%`;
+      document.getElementById('val-ehi').innerText = `${ml.sub_indices.ehi_pct}%`;
+      document.getElementById('val-vhi').innerText = `${ml.sub_indices.vhi_pct}%`;
+      document.getElementById('val-khi').innerText = `${ml.sub_indices.khi_pct}%`;
+
+      const zoneLabel = document.getElementById('mhi-zone-label');
+      if (mhi >= 85) {
+        zoneLabel.innerText = "ZONE A: OPTIMAL HEALTH";
+        zoneLabel.style.color = "var(--accent-green)";
+        document.getElementById('mhi-display').style.color = "var(--accent-green)";
+      } else if (mhi >= 65) {
+        zoneLabel.innerText = "ZONE B/C: MAINTENANCE WARNING";
+        zoneLabel.style.color = "var(--accent-amber)";
+        document.getElementById('mhi-display').style.color = "var(--accent-amber)";
+      } else {
+        zoneLabel.innerText = "ZONE D: CRITICAL ALARM / TRIP";
+        zoneLabel.style.color = "var(--accent-red)";
+        document.getElementById('mhi-display').style.color = "var(--accent-red)";
+      }
+
+      // Needle Rotation (-90 deg for 0%, 0 deg for 50%, 90 deg for 100%)
+      const needleAngle = -90 + (mhi / 100) * 180;
+      document.getElementById('gauge-needle').setAttribute('transform', `rotate(${needleAngle} 100 100)`);
+
+      // Gauge Arc Offset
+      const maxLen = 251.3;
+      const offset = maxLen - (mhi / 100) * maxLen;
+      document.getElementById('gauge-active-arc').style.strokeDashoffset = offset;
+      document.getElementById('gauge-active-arc').style.stroke = mhi >= 85 ? "#00E676" : (mhi >= 65 ? "#F59E0B" : "#EF4444");
+
+      // 3. Sidebar AI Card
+      document.getElementById('sidebar-ai-status').innerText = ml.mhi_status === "GREEN" ? "OPTIMAL / HEALTHY" : (ml.mhi_status === "YELLOW" ? "DEGRADATION DETECTED" : "CRITICAL FAULT");
+      document.getElementById('sidebar-ai-status').style.color = ml.mhi_status === "GREEN" ? "var(--accent-green)" : (ml.mhi_status === "YELLOW" ? "var(--accent-amber)" : "var(--accent-red)");
+      document.getElementById('sidebar-confidence').innerText = `${ml.prediction_confidence}%`;
+      document.getElementById('sidebar-confidence-bar').style.width = `${ml.prediction_confidence}%`;
+
+      // 4. Phasor Vector
+      document.getElementById('current-phasor-group').setAttribute('transform', `rotate(${sp.phase_angle_deg} 0 0)`);
+      document.getElementById('theta-display').innerText = `${sp.phase_angle_deg.toFixed(1)}°`;
+      document.getElementById('freq-display').innerText = `${sp.frequency_hz.toFixed(2)} Hz`;
+      document.getElementById('rocof-display').innerText = `RoCoF: ${sp.rocof_hz_per_sec.toFixed(2)} Hz/s`;
+
+      // 5. Protection Relay Status
+      const banner = document.getElementById('trip-banner');
+      const relayPill = document.getElementById('relay-pill');
+      const relayLabel = document.getElementById('relay-state-label');
+
+      if (pr.relay_state === "TRIP_OPEN") {
+        banner.classList.add('active');
+        document.getElementById('trip-reason-text').innerText = pr.trip_reason;
+        relayPill.classList.add('tripped');
+        relayLabel.innerText = "RELAY: EMERGENCY TRIP [OPEN]";
+      } else {
+        banner.classList.remove('active');
+        relayPill.classList.remove('tripped');
+        relayLabel.innerText = "RELAY: ARMED / CLOSED";
+      }
+
+      // 6. ToU & Costing
+      document.getElementById('val-q').innerText = `${va.reactive_power_kvar.toFixed(3)} kVAr`;
+      document.getElementById('val-cap').innerText = `${va.recommended_capacitor_uf.toFixed(1)} µF`;
+      document.getElementById('val-tariff').innerHTML = `&#8377; ${dr.tariff_rate_inr_per_kwh.toFixed(2)} / kWh`;
+      document.getElementById('val-cost').innerHTML = `&#8377; ${dr.current_cost_rate_inr_per_hr.toFixed(2)} / hr`;
+      document.getElementById('val-dr').innerHTML = `&#8377; ${dr.total_rebate_earned_inr.toFixed(2)} Earned`;
+      document.getElementById('tou-tier-badge').innerText = `${dr.tariff_tier} TIER`;
+
+      // 7. Update Timeseries Chart
+      if (hist && hist.timestamps.length > 0) {
+        liveChart.data.labels = hist.timestamps;
+        if (currentChartTab === "voltage") liveChart.data.datasets[0].data = hist.voltage;
+        else if (currentChartTab === "current") liveChart.data.datasets[0].data = hist.current;
+        else if (currentChartTab === "vibration") liveChart.data.datasets[0].data = hist.vibration_x;
+        else if (currentChartTab === "power") liveChart.data.datasets[0].data = hist.power;
+        liveChart.update('none');
+      }
+    }
+
+    // ---------------- Interactive Controls ----------------
+    async function injectFault(mode) {
+      document.querySelectorAll('.fault-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`btn-fault-${mode}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      await fetch('/api/inject_fault', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fault_mode: mode, intensity: 1.4 })
+      });
+    }
+
+    async function changeLoadCondition(load) {
+      await fetch('/api/set_load', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ load_condition: load })
+      });
+    }
+
+    async function resetRelay() {
+      await fetch('/api/reset_relay', { method: 'POST' });
+      injectFault('none');
+    }
+
+    async function manualTrip() {
+      await fetch('/api/trip_relay_manual', { method: 'POST' });
+    }
+
+    // Poll every 1000 ms
+    setInterval(fetchTelemetry, 1000);
+    fetchTelemetry();
+  </script>
+</body>
+</html>
